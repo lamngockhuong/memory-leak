@@ -1,0 +1,4 @@
+ignoredBuiltDependencies:
+  - v8-profiler-next
+onlyBuiltDependencies:
+  - v8-profiler-next
