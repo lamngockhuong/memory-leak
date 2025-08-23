@@ -6,13 +6,13 @@ export interface GlobalWithGC {
   gc?: () => void;
 }
 
-// Thêm vào cuối file hiện tại của bạn
+// Add to the end of your current file
 type AutoSnapOptions = {
   label?: string;
   outputDir?: string;
-  intervalMs?: number; // mặc định 5000ms
-  immediate?: boolean; // mặc định true: chụp ngay lần đầu
-  beforeGc?: boolean; // mặc định false
+  intervalMs?: number; // default 5000ms
+  immediate?: boolean; // default true: take snapshot immediately on first run
+  beforeGc?: boolean; // default false
   signal?: AbortSignal; // optional
   onAfterSnapshot?: (file: string, index: number) => void | Promise<void>;
 };
@@ -95,11 +95,11 @@ export class Heapdump {
   }
 
   /**
-   * Chụp heap snapshot liên tục theo interval. Trả về controller để dừng.
+   * Take heap snapshots continuously at intervals. Returns a controller to stop.
    *
-   * Ví dụ:
+   * Example:
    *   const ctl = Heapdump.startAutoSnapshot({ label: 'leak', intervalMs: 3000, beforeGc: true });
-   *   // ... chạy 15s
+   *   // ... run for 15s
    *   const files = await ctl.stop();
    */
   static startAutoSnapshot(options: AutoSnapOptions = {}) {
@@ -117,15 +117,16 @@ export class Heapdump {
     let seq = 0;
     let timer: NodeJS.Timeout | null = null;
     const files: string[] = [];
-    // đảm bảo không chụp chồng lấp
+    // ensure snapshots don't overlap
     let inFlight: Promise<void> = Promise.resolve();
 
     const snapOnce = async () => {
       if (stopped) return;
-      // nối vào chuỗi inFlight để serialize các lần chụp
+      // chain to inFlight to serialize snapshots
       inFlight = inFlight.then(async () => {
         try {
-          if (beforeGc && (global as any).gc) (global as any).gc();
+          if (beforeGc && typeof (global as GlobalWithGC).gc === 'function')
+            (global as GlobalWithGC).gc?.();
           const file = await Heapdump.writeSnapshot(
             `${label}-${String(seq).padStart(4, '0')}`,
             outputDir,
@@ -149,7 +150,7 @@ export class Heapdump {
       if (stopped) return files;
       stopped = true;
       if (timer) clearInterval(timer);
-      await inFlight; // đợi lần chụp cuối (nếu có) kết thúc
+      await inFlight; // wait for the last snapshot (if any) to complete
       return [...files];
     };
 
@@ -167,9 +168,9 @@ export class Heapdump {
   }
 
   /**
-   * Chụp N lần, cách nhau intervalMs, rồi trả về danh sách file (hữu ích cho Comparison).
+   * Take N snapshots, spaced intervalMs apart, then return the list of files (useful for Comparison).
    *
-   * Ví dụ:
+   * Example:
    *   const files = await Heapdump.snapEvery(2, { label: 'leak', intervalMs: 5000, beforeGc: true });
    */
   static async snapEvery(
@@ -188,7 +189,8 @@ export class Heapdump {
     const files: string[] = [];
 
     for (let i = 0; i < times; i++) {
-      if (beforeGc && (global as any).gc) (global as any).gc();
+      if (beforeGc && typeof (global as GlobalWithGC).gc === 'function')
+        (global as GlobalWithGC).gc?.();
       const file = await Heapdump.writeSnapshot(
         `${label}-${String(i).padStart(4, '0')}`,
         outputDir,
