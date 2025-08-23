@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { leakMemory } from './utils/leak-global';
-import { Heapdump } from './utils/heapdump';
 
 @Injectable()
 export class AppService {
@@ -9,12 +8,14 @@ export class AppService {
   }
 
   globalVariableLeak() {
-    setInterval(leakMemory, 1000);
+    const intervalId = setInterval(leakMemory, 1000);
 
-    Heapdump.writeSnapshot('global-leak')
-      .then((file) => console.log('Snapshot written:', file))
-      .catch((err) => console.error('Snapshot error:', err));
+    // After durationMs milliseconds, stop the leak
+    setTimeout(() => {
+      clearInterval(intervalId);
+      console.log('Stopped leaking memory');
+    }, 10000);
 
-    return 'Global variable leak';
+    return 'Global variable leak started';
   }
 }

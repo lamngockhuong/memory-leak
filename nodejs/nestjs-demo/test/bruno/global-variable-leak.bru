@@ -1,0 +1,15 @@
+meta {
+  name: global-variable-leak
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/global-variable-leak
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}
