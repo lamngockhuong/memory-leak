@@ -1,0 +1,21 @@
+meta {
+  name: heapdump
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/internal/debug/heapdump
+  body: none
+  auth: apikey
+}
+
+auth:apikey {
+  key: x-admin-token
+  value: heapdump_demo
+  placement: header
+}
+
+settings {
+  encodeUrl: true
+}
