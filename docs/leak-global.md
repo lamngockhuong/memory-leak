@@ -1,3 +1,15 @@
+# Global Variable Memory Leak Demo
+
+This page demonstrates a real memory leak scenario using global variables. The content below shows the actual output from running our [NestJS demo application](/demos/nestjs) with a global variable memory leak.
+
+## What Happened
+
+The demo application was started with the global variable leak enabled, which continuously adds large arrays to a global variable without any cleanup mechanism.
+
+## Actual Output
+
+When the application reached its memory limit, Node.js generated the following error:
+
 ```bash
 Leaked 1MB+
 Leaked 1MB+
@@ -43,3 +55,48 @@ FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memor
 27: 0x10028d4cc node::Start(int, char**) [/Users/lamngockhuong/.nvm/versions/node/v22.15.0/bin/node]
 28: 0x18b306b4c start [/usr/lib/dyld]
 ```
+
+## Analysis
+
+This error demonstrates several key characteristics of memory leaks:
+
+### Memory Exhaustion
+- The application consumed over **4GB of memory** before crashing
+- Each "Leaked 1MB+" message represents another 1MB+ array added to the global variable
+
+### Garbage Collection Pressure
+- Notice the "Last few GCs" section showing multiple garbage collection attempts
+- Mark-Compact GC runs were unable to free significant memory because the objects were still referenced
+
+### Fatal Out of Memory
+- Eventually, Node.js couldn't allocate more memory and crashed with "JavaScript heap out of memory"
+
+## The Leaking Code
+
+This crash was caused by the following code pattern in our demo:
+
+```typescript
+// From /nodejs/nestjs-demo/src/utils/leak-global.ts
+global.leakedArray = [];
+
+export function leakMemory(): void {
+  const largeArray = new Array(1e6).fill('leak') as string[];
+  (global.leakedArray as Array<string[]>).push(largeArray);
+  console.log('Leaked 1MB+');
+}
+```
+
+## Key Lessons
+
+1. **Global variables can be dangerous** - They prevent garbage collection of referenced objects
+2. **Memory leaks are often gradual** - The application ran for several minutes before crashing
+3. **GC cannot help** when objects are still referenced
+4. **Monitoring is crucial** - In production, you want to catch this before the crash
+
+## How to Fix
+
+See our [Global Variables Pattern](/patterns/global-variables) guide for detailed prevention strategies.
+
+## Try It Yourself
+
+Run the [NestJS demo](/demos/nestjs) to reproduce this behavior in a controlled environment.
