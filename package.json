@@ -1,0 +1,16 @@
+{
+  "name": "memory-leak",
+  "type": "module",
+  "private": true,
+  "author": "hi@khuong.dev",
+  "license": "MIT",
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "devDependencies": {
+    "vitepress": "2.0.0-alpha.12"
+  },
+  "packageManager": "pnpm@10.15.0"
+}
