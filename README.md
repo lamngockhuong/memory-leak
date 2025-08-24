@@ -1,3 +1,1 @@
-# Memory Leak
-
-Memory Leak demo
+# Memory Leak Guide
