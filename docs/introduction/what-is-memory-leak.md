@@ -13,7 +13,7 @@ To understand memory leaks, it's essential to understand how memory management w
 
 ### Garbage-Collected Languages
 
-Languages like **JavaScript**, **Java**, **Kotlin**, and **Go** use automatic memory management through garbage collection:
+Languages like **JavaScript**, **Java**, **Kotlin**, **Go** and **Python** use automatic memory management through garbage collection:
 
 1. **Allocation**: Objects are created and memory is allocated
 2. **Usage**: Application uses the allocated objects

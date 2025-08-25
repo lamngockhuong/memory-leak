@@ -13,7 +13,7 @@
 
 ### Ngôn ngữ có Garbage Collection
 
-Các ngôn ngữ như **JavaScript**, **Java**, **Kotlin**, và **Go** sử dụng quản lý bộ nhớ tự động thông qua garbage collection:
+Các ngôn ngữ như **JavaScript**, **Java**, **Kotlin**, **Go** và **Python** sử dụng quản lý bộ nhớ tự động thông qua garbage collection:
 
 1. **Cấp phát**: Các đối tượng được tạo và bộ nhớ được cấp phát
 2. **Sử dụng**: Ứng dụng sử dụng các đối tượng đã cấp phát
