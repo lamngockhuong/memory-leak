@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <!-- Memory chip background -->
+  <rect x="8" y="12" width="48" height="40" rx="6" fill="#3b82f6" stroke="#1d4ed8" stroke-width="2" />
+
+  <!-- Memory chip details -->
+  <rect x="12" y="16" width="40" height="4" rx="1" fill="#93c5fd" />
+  <rect x="12" y="22" width="40" height="4" rx="1" fill="#93c5fd" />
+  <rect x="12" y="28" width="40" height="4" rx="1" fill="#93c5fd" />
+  <rect x="12" y="34" width="40" height="4" rx="1" fill="#93c5fd" />
+  <rect x="12" y="40" width="40" height="4" rx="1" fill="#93c5fd" />
+  <rect x="12" y="46" width="40" height="4" rx="1" fill="#93c5fd" />
+
+  <!-- Memory chip pins -->
+  <rect x="4" y="18" width="4" height="2" fill="#6b7280" />
+  <rect x="4" y="22" width="4" height="2" fill="#6b7280" />
+  <rect x="4" y="26" width="4" height="2" fill="#6b7280" />
+  <rect x="4" y="30" width="4" height="2" fill="#6b7280" />
+  <rect x="4" y="34" width="4" height="2" fill="#6b7280" />
+  <rect x="4" y="38" width="4" height="2" fill="#6b7280" />
+  <rect x="4" y="42" width="4" height="2" fill="#6b7280" />
+
+  <rect x="56" y="18" width="4" height="2" fill="#6b7280" />
+  <rect x="56" y="22" width="4" height="2" fill="#6b7280" />
+  <rect x="56" y="26" width="4" height="2" fill="#6b7280" />
+  <rect x="56" y="30" width="4" height="2" fill="#6b7280" />
+  <rect x="56" y="34" width="4" height="2" fill="#6b7280" />
+  <rect x="56" y="38" width="4" height="2" fill="#6b7280" />
+  <rect x="56" y="42" width="4" height="2" fill="#6b7280" />
+
+  <!-- Warning symbol (leak indicator) -->
+  <circle cx="48" cy="20" r="8" fill="#ef4444" stroke="#ffffff" stroke-width="2" />
+  <path d="M44 16 L48 24 L52 16 Z" fill="#ffffff" />
+  <circle cx="48" cy="26" r="1" fill="#ffffff" />
+
+  <!-- Memory leak drops -->
+  <circle cx="42" cy="54" r="2" fill="#ef4444" opacity="0.7" />
+  <circle cx="38" cy="58" r="1.5" fill="#ef4444" opacity="0.5" />
+  <circle cx="46" cy="58" r="1" fill="#ef4444" opacity="0.3" />
+</svg>
