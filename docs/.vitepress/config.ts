@@ -4,17 +4,39 @@ export default defineConfig({
   title: "Memory Leak Guide",
   description:
     "Comprehensive guide to understand, detect, and prevent memory leaks across multiple programming languages",
+  lastUpdated: true,
+  head: [
+    ["link", { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" }],
+  ],
   locales: {
     root: {
       label: "English",
       lang: "en",
       themeConfig: {
+        outline: {
+          level: [2, 3],
+        },
         nav: [
           { text: "Home", link: "/" },
           { text: "Getting Started", link: "/getting-started" },
           { text: "Languages", link: "/languages/" },
           { text: "Tools", link: "/tools/" },
           { text: "Best Practices", link: "/best-practices/" },
+        ],
+        sidebar: [
+          {
+            text: "Introduction",
+            items: [
+              {
+                text: "What is Memory Leak?",
+                link: "/introduction/what-is-memory-leak",
+              },
+              {
+                text: "Why It Matters",
+                link: "/introduction/why-it-matters",
+              },
+            ],
+          },
         ],
       },
     },
@@ -23,6 +45,16 @@ export default defineConfig({
       lang: "vi",
       link: "/vi/",
       themeConfig: {
+        lastUpdated: {
+          text: "Cập nhật lần cuối",
+        },
+        editLink: {
+          text: "Chỉnh sửa trang này",
+        },
+        outline: {
+          label: "Mục lục",
+          level: [2, 3],
+        },
         nav: [
           { text: "Trang chủ", link: "/vi/" },
           { text: "Hướng dẫn bắt đầu", link: "/vi/getting-started" },
@@ -30,10 +62,26 @@ export default defineConfig({
           { text: "Công cụ", link: "/vi/tools/" },
           { text: "Mẹo hay", link: "/vi/best-practices/" },
         ],
+        sidebar: [
+          {
+            text: "Giới thiệu",
+            items: [
+              {
+                text: "Memory Leak là gì?",
+                link: "/vi/introduction/what-is-memory-leak",
+              },
+              {
+                text: "Tại sao quan trọng?",
+                link: "/vi/introduction/why-it-matters",
+              },
+            ],
+          },
+        ],
       },
     },
   },
   themeConfig: {
+    logo: "/logo.svg",
     socialLinks: [
       { icon: "github", link: "https://github.com/lamngockhuong/memory-leak" },
     ],
@@ -43,6 +91,12 @@ export default defineConfig({
     editLink: {
       pattern:
         "https://github.com/lamngockhuong/memory-leak/edit/main/docs/:path",
+    },
+    footer: {
+      message:
+        "Released under the <a href='https://github.com/lamngockhuong/memory-leak/blob/main/LICENSE'>MIT License</a>.",
+      copyright:
+        "Copyright © 2025-present <a href='https://khuong.dev' target='_blank'>Khuong Dev</a>",
     },
   },
 });
