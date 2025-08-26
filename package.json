@@ -9,6 +9,9 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
   },
+  "dependencies": {
+    "vitepress-mermaid-renderer": "^1.0.14"
+  },
   "devDependencies": {
     "vitepress": "2.0.0-alpha.12"
   },
