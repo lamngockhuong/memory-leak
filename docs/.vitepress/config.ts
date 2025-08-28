@@ -19,9 +19,9 @@ export default defineConfig({
         nav: [
           { text: "Home", link: "/" },
           { text: "Getting Started", link: "/getting-started" },
-          { text: "Languages", link: "/languages/" },
-          { text: "Tools", link: "/tools/" },
-          { text: "Best Practices", link: "/best-practices/" },
+          // { text: "Languages", link: "/languages/" },
+          // { text: "Tools", link: "/tools/" },
+          // { text: "Best Practices", link: "/best-practices/" },
         ],
         sidebar: [
           {
@@ -35,6 +35,16 @@ export default defineConfig({
                 text: "Why It Matters",
                 link: "/introduction/why-it-matters",
               },
+            ],
+          },
+          {
+            text: "Language-Specific Guides",
+            items: [
+              { text: "JavaScript/TypeScript", link: "/languages/javascript" },
+              // { text: "Java", link: "/languages/java" },
+              // { text: "Kotlin", link: "/languages/kotlin" },
+              // { text: "Go", link: "/languages/go" },
+              // { text: "Node.js", link: "/languages/nodejs" },
             ],
           },
         ],
@@ -58,9 +68,9 @@ export default defineConfig({
         nav: [
           { text: "Trang chủ", link: "/vi/" },
           { text: "Hướng dẫn bắt đầu", link: "/vi/getting-started" },
-          { text: "Ngôn ngữ", link: "/vi/languages/" },
-          { text: "Công cụ", link: "/vi/tools/" },
-          { text: "Mẹo hay", link: "/vi/best-practices/" },
+          // { text: "Ngôn ngữ", link: "/vi/languages/" },
+          // { text: "Công cụ", link: "/vi/tools/" },
+          // { text: "Mẹo hay", link: "/vi/best-practices/" },
         ],
         sidebar: [
           {
@@ -74,6 +84,19 @@ export default defineConfig({
                 text: "Tại sao quan trọng?",
                 link: "/vi/introduction/why-it-matters",
               },
+            ],
+          },
+          {
+            text: "Hướng dẫn theo ngôn ngữ",
+            items: [
+              {
+                text: "JavaScript/TypeScript",
+                link: "/vi/languages/javascript",
+              },
+              // { text: "Java", link: "/vi/languages/java" },
+              // { text: "Kotlin", link: "/vi/languages/kotlin" },
+              // { text: "Go", link: "/vi/languages/go" },
+              // { text: "Node.js", link: "/vi/languages/nodejs" },
             ],
           },
         ],
