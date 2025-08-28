@@ -114,7 +114,7 @@ cleanup();
 
 ### 3. Closure
 
-**Vấn đề**: Closure giữ lại toàn bộ phạm vi từ vựng (lexical scope), bao gồm cả các đối tượng lớn không cần thi
+**Vấn đề**: Closure giữ lại toàn bộ phạm vi từ vựng (lexical scope), bao gồm cả các đối tượng lớn không cần thiết
 
 ```javascript
 // SAI: Closure giữ tham chiếu đến đối tượng lớn không cần thiết
