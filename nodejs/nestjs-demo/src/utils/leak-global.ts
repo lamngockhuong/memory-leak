@@ -68,7 +68,7 @@ export function getGlobalVariableStats(): {
   const leakedArray = global.leakedArray as Array<string[]>;
   return {
     leakedArrays: leakedArray.length,
-    estimatedMemoryMB: leakedArray.length * 8, // ~8MB per array (1M strings * 8 bytes each)
+    estimatedMemoryMB: leakedArray.length * 8, // Approximate: ~8MB per array (1M strings * ~8 bytes each, actual usage depends on UTF-16 encoding and engine optimizations)
     isLeaking,
   };
 }
