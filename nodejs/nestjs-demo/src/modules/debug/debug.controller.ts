@@ -23,6 +23,7 @@ export class DebugController {
         (global as GlobalWithGC).gc?.();
       }
       await Heapdump.writeSnapshot('manual');
+      // await Heapdump.snapEvery(3, { label: 'manual', intervalMs: 10000 });
       // (optional) upload, compress, clean old files…
     } catch (e) {
       console.error('[heapdump] failed:', e);

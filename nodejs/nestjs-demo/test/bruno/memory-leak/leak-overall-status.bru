@@ -1,0 +1,27 @@
+meta {
+  name: leak-overall-status
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/memory-leak/status
+  body: none
+  auth: none
+}
+
+tests {
+  test("Overall status response structure", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.have.property('timestamp');
+    expect(res.body).to.have.property('patterns');
+    expect(res.body).to.have.property('memory');
+  
+    // Check all patterns are included
+    expect(res.body.patterns).to.have.property('timer');
+    expect(res.body.patterns).to.have.property('cache');
+    expect(res.body.patterns).to.have.property('closure');
+    expect(res.body.patterns).to.have.property('event');
+    expect(res.body.patterns).to.have.property('globalVariable');
+  });
+}

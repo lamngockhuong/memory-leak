@@ -1,0 +1,11 @@
+meta {
+  name: event-leak-trigger
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/memory-leak/event/trigger
+  body: none
+  auth: none
+}

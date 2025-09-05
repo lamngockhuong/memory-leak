@@ -1,0 +1,25 @@
+meta {
+  name: global-variable-leak-stop
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/memory-leak/global-variable/stop
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 201
+  res.body.success: eq true
+  res.body.message: contains "stopped"
+}
+
+tests {
+  test("Should successfully stop global variable leak", function() {
+    expect(res.status).to.equal(201);
+    expect(res.body.success).to.be.true;
+    expect(res.body.message).to.include("stopped");
+  });
+}

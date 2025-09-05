@@ -47,6 +47,26 @@ export default defineConfig({
               // { text: "Node.js", link: "/languages/nodejs" },
             ],
           },
+          {
+            text: "Common Leak Patterns",
+            items: [
+              { text: "Global Variables", link: "/patterns/global-variables" },
+              { text: "Timers & Intervals", link: "/patterns/timers" },
+              // { text: "Event Listeners", link: "/patterns/event-listeners" },
+              // { text: "Closures", link: "/patterns/closures" },
+              // { text: "Caching", link: "/patterns/caching" },
+              // { text: "DOM References", link: "/patterns/dom-references" },
+            ],
+          },
+          {
+            text: "Demo Projects",
+            items: [
+              { text: "NestJS Demo", link: "/demos/nestjs" },
+              { text: "Java Demo", link: "/demos/java" },
+              { text: "Go Demo", link: "/demos/go" },
+              { text: "Kotlin Demo", link: "/demos/kotlin" },
+            ],
+          },
         ],
       },
     },
@@ -97,6 +117,29 @@ export default defineConfig({
               // { text: "Kotlin", link: "/vi/languages/kotlin" },
               // { text: "Go", link: "/vi/languages/go" },
               // { text: "Node.js", link: "/vi/languages/nodejs" },
+            ],
+          },
+          {
+            text: "Các Pattern Memory Leak phổ biến",
+            items: [
+              {
+                text: "Global Variables",
+                link: "/vi/patterns/global-variables",
+              },
+              { text: "Timers & Intervals", link: "/vi/patterns/timers" },
+              // { text: "Event Listeners", link: "/vi/patterns/event-listeners" },
+              // { text: "Closures", link: "/vi/patterns/closures" },
+              // { text: "Caching", link: "/vi/patterns/caching" },
+              // { text: "DOM References", link: "/vi/patterns/dom-references" },
+            ],
+          },
+          {
+            text: "Demo Projects",
+            items: [
+              { text: "NestJS Demo", link: "/demos/nestjs" },
+              { text: "Java Demo", link: "/demos/java" },
+              { text: "Go Demo", link: "/demos/go" },
+              { text: "Kotlin Demo", link: "/demos/kotlin" },
             ],
           },
         ],

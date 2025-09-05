@@ -1,0 +1,11 @@
+meta {
+  name: event-leak-status
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/memory-leak/event/status
+  body: none
+  auth: none
+}
