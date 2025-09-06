@@ -9,3 +9,10 @@ get {
   body: none
   auth: none
 }
+
+assert {
+  res.status: eq 200
+  res.body.size: isNumber
+  res.body.memoryUsage: isString
+  res.body.maxSize: isNumber
+}

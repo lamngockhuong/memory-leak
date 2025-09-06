@@ -9,3 +9,10 @@ get {
   body: none
   auth: none
 }
+
+assert {
+  res.status: eq 200
+  res.body.message: isDefined
+  res.body.activeTimers: isNumber
+}
+

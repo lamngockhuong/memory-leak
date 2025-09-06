@@ -9,3 +9,13 @@ get {
   body: none
   auth: none
 }
+
+assert {
+  res.status: eq 200
+  res.body.isLeaking: isBoolean
+  res.body.stats: isDefined
+  res.body.stats.size: isNumber
+  res.body.stats.memoryUsage: isString
+  res.body.stats.maxSize: isNumber
+  res.body.message: isString
+}

@@ -9,3 +9,12 @@ post {
   body: none
   auth: none
 }
+
+assert {
+  res.status: eq 201
+  res.body.message: isDefined
+  res.body.stats: isDefined
+  res.body.stats.activeListeners: isNumber
+  res.body.stats.totalMemoryAllocated: isNumber
+  res.body.stats.isLeaking: isTruthy
+}
