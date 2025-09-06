@@ -6,6 +6,43 @@
 
 <p align="center">A comprehensive memory leak demonstration and testing API built with <a href="http://nestjs.com/" target="_blank">NestJS</a> framework.</p>
 
+## Table of Contents
+
+- [Memory Leak Demo - NestJS](#memory-leak-demo---nestjs)
+  - [Table of Contents](#table-of-contents)
+  - [Description](#description)
+  - [Memory Leak Patterns](#memory-leak-patterns)
+    - [1. 🔄 **Timer Leaks**](#1--timer-leaks)
+    - [2. 💾 **Cache Leaks**](#2--cache-leaks)
+    - [3. 🔒 **Closure Leaks**](#3--closure-leaks)
+    - [4. 📡 **Event Listener Leaks**](#4--event-listener-leaks)
+    - [5. 🌍 **Global Variable Leaks**](#5--global-variable-leaks)
+  - [API Endpoints](#api-endpoints)
+    - [Overall Status](#overall-status)
+    - [Pattern-Specific Endpoints](#pattern-specific-endpoints)
+    - [Additional Endpoints](#additional-endpoints)
+  - [Project setup](#project-setup)
+  - [Development](#development)
+  - [Testing Memory Leaks](#testing-memory-leaks)
+    - [Using Bruno API Client](#using-bruno-api-client)
+    - [Manual Testing](#manual-testing)
+    - [Memory Monitoring](#memory-monitoring)
+      - [Generate Heap Dumps](#generate-heap-dumps)
+      - [Watch Memory Usage](#watch-memory-usage)
+  - [Project Structure](#project-structure)
+  - [Educational Use](#educational-use)
+    - [Memory Leak Analysis Tools](#memory-leak-analysis-tools)
+    - [USR2 Signal Configuration](#usr2-signal-configuration)
+  - [Run tests](#run-tests)
+  - [Deployment](#deployment)
+    - [Environment Variables](#environment-variables)
+    - [Security Considerations](#security-considerations)
+    - [Docker Support](#docker-support)
+  - [Documentation](#documentation)
+  - [Resources](#resources)
+  - [Contributing](#contributing)
+  - [License](#license)
+
 ## Description
 
 This NestJS application demonstrates various types of memory leaks commonly found in Node.js applications. It provides REST APIs to start, stop, and monitor different memory leak patterns for educational and testing purposes.
