@@ -79,10 +79,10 @@ fun userFlow(): Flow<User> = flow {
 
 ## Related Resources
 
-- [Kotlin Memory Management Guide](../languages/kotlin.md)
-- [Coroutine Leak Patterns](../patterns/coroutine-leaks.md)
-- [Android Memory Leaks](../patterns/android-leaks.md)
+- [JavaScript Memory Management Guide](../languages/javascript.md)
+- [Timer Leak Patterns](../patterns/timers.md)
+- [Closure Leak Patterns](../patterns/closures.md)
 
 ---
 
-📝 **Want to contribute?** This demo is part of our roadmap. Check out our [contributing guide](../../CONTRIBUTING.md) to help build this demo.
+📝 **Want to contribute?** This demo is part of our roadmap. Check out our [contributing guide](https://github.com/lamngockhuong/memory-leak/blob/main/CONTRIBUTING.md) to help build this demo.

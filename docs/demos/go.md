@@ -66,9 +66,10 @@ go tool pprof -http=:8081 http://localhost:8080/debug/pprof/goroutine
 
 ## Related Resources
 
-- [Go Memory Management Guide](../languages/go.md)
-- [Goroutine Leak Patterns](../patterns/goroutine-leaks.md)
+- [JavaScript Memory Management Guide](../languages/javascript.md)
+- [Global Variable Patterns](../patterns/global-variables.md)
+- [Timer Patterns](../patterns/timers.md)
 
 ---
 
-📝 **Want to contribute?** This demo is part of our roadmap. Check out our [contributing guide](../../CONTRIBUTING.md) to help build this demo.
+📝 **Want to contribute?** This demo is part of our roadmap. Check out our [contributing guide](https://github.com/lamngockhuong/memory-leak/blob/main/CONTRIBUTING.md) to help build this demo.

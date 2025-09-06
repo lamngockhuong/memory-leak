@@ -40,9 +40,10 @@ cd java/spring-boot-demo
 
 ## Related Resources
 
-- [Java Memory Management Guide](../languages/java.md)
-- [JVM Memory Leak Patterns](../patterns/jvm-leaks.md)
+- [JavaScript Memory Management Guide](../languages/javascript.md)
+- [Caching Patterns](../patterns/caching.md)
+- [Event Listener Patterns](../patterns/event-listeners.md)
 
 ---
 
-📝 **Want to contribute?** This demo is part of our roadmap. Check out our [contributing guide](../../CONTRIBUTING.md) to help build this demo.
+📝 **Want to contribute?** This demo is part of our roadmap. Check out our [contributing guide](https://github.com/lamngockhuong/memory-leak/blob/main/CONTRIBUTING.md) to help build this demo.

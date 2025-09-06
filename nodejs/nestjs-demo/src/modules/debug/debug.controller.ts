@@ -1,5 +1,5 @@
 // debug.controller.ts
-import { Controller, Post, Res, UseGuards } from '@nestjs/common';
+import { Controller, Logger, Post, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { ReadinessService } from './readiness.service';
 import { GlobalWithGC, Heapdump } from '../../utils/heapdump';
@@ -7,6 +7,8 @@ import { AdminTokenGuard } from './admin-token.guard';
 
 @Controller('internal/debug')
 export class DebugController {
+  private readonly logger = new Logger(DebugController.name);
+
   private taking = false;
   constructor(private readonly readiness: ReadinessService) {}
 
@@ -26,7 +28,7 @@ export class DebugController {
       // await Heapdump.snapEvery(3, { label: 'manual', intervalMs: 10000 });
       // (optional) upload, compress, clean old files…
     } catch (e) {
-      console.error('[heapdump] failed:', e);
+      this.logger.error('[heapdump] failed:', e);
     } finally {
       this.readiness.setReady(true);
       this.taking = false;

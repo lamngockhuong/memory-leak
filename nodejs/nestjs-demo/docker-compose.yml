@@ -1,0 +1,19 @@
+services:
+  memory-leak-demo:
+    build: .
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HEAPDUMP_ENABLED=1
+      - HEAPDUMP_TOKEN=heapdump_demo
+    restart: unless-stopped
+    container_name: memory-leak-app
+
+    # Optional: Resource limits for safety
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'

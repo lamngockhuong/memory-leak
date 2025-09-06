@@ -5,6 +5,57 @@ export default defineConfig({
   description:
     "Comprehensive guide to understand, detect, and prevent memory leaks across multiple programming languages",
   lastUpdated: true,
+  // ignoreDeadLinks: true,
+
+  // Build optimization to handle chunk size warnings
+  vite: {
+    build: {
+      chunkSizeWarningLimit: Infinity, // Disable chunk size warnings for docs
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            // Split node_modules into more granular chunks
+            if (id.includes("node_modules")) {
+              if (id.includes("vue")) {
+                return "vue";
+              }
+              if (id.includes("vitepress")) {
+                return "vitepress";
+              }
+              if (id.includes("@vueuse")) {
+                return "vueuse";
+              }
+              if (id.includes("markdown-it")) {
+                return "markdown";
+              }
+              if (id.includes("shiki") || id.includes("highlight")) {
+                return "syntax-highlight";
+              }
+              if (id.includes("lodash") || id.includes("ramda")) {
+                return "utils";
+              }
+              // Other vendor libraries
+              return "vendor";
+            }
+
+            // Split large documentation files if any
+            if (id.includes("/docs/")) {
+              if (id.includes("/demos/")) {
+                return "docs-demos";
+              }
+              if (id.includes("/patterns/")) {
+                return "docs-patterns";
+              }
+              if (id.includes("/languages/")) {
+                return "docs-languages";
+              }
+            }
+          },
+        },
+      },
+    },
+  },
+
   head: [
     ["link", { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" }],
   ],
