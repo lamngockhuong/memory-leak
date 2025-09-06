@@ -1,0 +1,78 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build artifacts
+dist/
+build/
+*.tsbuildinfo
+
+# Test files and coverage
+test/
+coverage/
+*.test.ts
+*.spec.ts
+jest.config.js
+
+# Development files
+.env.local
+.env.development
+.env.test
+*.log
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git files
+.git/
+.gitignore
+.gitattributes
+
+# Docker files
+Dockerfile*
+.dockerignore
+docker-compose*.yml
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+*.md
+
+# Memory leak specific excludes
+heapdumps/
+*.heapsnapshot
+
+# Bruno API tests (not needed in container)
+test/bruno/
+
+# Development configuration (keep TypeScript configs for build)
+.eslintrc.js
+.prettierrc
+nodemon.json
+# tsconfig.json and tsconfig.build.json are needed for build
+
+# Package manager files (keep only what's needed)
+yarn.lock
+package-lock.json
+# Keep: package.json, pnpm-lock.yaml
+
+# Temporary files
+tmp/
+temp/
