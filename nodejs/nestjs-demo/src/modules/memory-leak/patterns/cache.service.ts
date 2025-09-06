@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CacheStats, CacheLeakResponse } from '../types';
+import { CacheStats, CacheLeakResponse, CacheStatusResponse } from '../types';
 import {
   startCacheLeak,
   stopCacheLeak,
@@ -42,11 +42,7 @@ export class CacheService {
     };
   }
 
-  getCacheStatus(): {
-    isLeaking: boolean;
-    stats: CacheStats;
-    message: string;
-  } {
+  getCacheStatus(): CacheStatusResponse {
     const stats = getCacheStats();
     return {
       isLeaking: stats.isLeaking,

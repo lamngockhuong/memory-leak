@@ -4,17 +4,7 @@ import {
   stopClosureLeak,
   getClosureStats,
 } from '../../../utils/leak-closure';
-
-export interface ClosureLeakStats {
-  activeClosures: number;
-  totalMemoryAllocated: number; // in MB
-  isLeaking: boolean;
-}
-
-export interface ClosureLeakResponse {
-  message: string;
-  stats: ClosureLeakStats;
-}
+import { ClosureLeakResponse } from '../types';
 
 @Injectable()
 export class ClosureService {

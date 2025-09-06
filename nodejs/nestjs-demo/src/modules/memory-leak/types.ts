@@ -1,3 +1,14 @@
+export interface GlobalVariableLeakStats {
+  leakedArrays: number;
+  estimatedMemoryMB: number;
+  isLeaking: boolean;
+}
+
+export interface GlobalVariableLeakResponse {
+  message: string;
+  stats: GlobalVariableLeakStats;
+}
+
 export interface CacheStats {
   size: number;
   memoryUsage: string;
@@ -43,12 +54,6 @@ export interface EventLeakResponse {
   stats: EventLeakStats;
 }
 
-export interface CacheStopResponse {
-  message: string;
-  clearedEntries: number;
-  stats: CacheStats;
-}
-
 export interface CacheStatusResponse {
   isLeaking: boolean;
   stats: CacheStats;
@@ -58,21 +63,11 @@ export interface CacheStatusResponse {
 export interface OverallStatusResponse {
   timestamp: string;
   patterns: {
-    timer: {
-      activeTimers: number;
-      message: string;
-    };
+    timer: TimerLeakResponse;
     cache: CacheStatusResponse;
-    closure?: {
-      activeClosures: number;
-      totalMemoryAllocated: number;
-      isLeaking: boolean;
-    };
-    event?: {
-      activeListeners: number;
-      totalMemoryAllocated: number;
-      isLeaking: boolean;
-    };
+    closure?: ClosureLeakStats;
+    event?: EventLeakStats;
+    globalVariable?: GlobalVariableLeakStats;
   };
   memory: NodeJS.MemoryUsage;
 }

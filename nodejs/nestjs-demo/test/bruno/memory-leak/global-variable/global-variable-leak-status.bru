@@ -1,7 +1,7 @@
 meta {
   name: global-variable-leak-status
   type: http
-  seq: 5
+  seq: 2
 }
 
 get {
@@ -12,16 +12,8 @@ get {
 
 assert {
   res.status: eq 200
-  res.body.success: eq true
   res.body.stats: isDefined
-}
-
-tests {
-  test("Should return global variable leak status", function() {
-    expect(res.status).to.equal(200);
-    expect(res.body.success).to.be.true;
-    expect(res.body.stats).to.be.defined;
-    expect(res.body.stats.count).to.be.a("number");
-    expect(res.body.stats.totalSizeBytes).to.be.a("number");
-  });
+  res.body.stats.leakedArrays: isNumber
+  res.body.stats.estimatedMemoryMB: isNumber
+  res.body.stats.isLeaking: isBoolean
 }

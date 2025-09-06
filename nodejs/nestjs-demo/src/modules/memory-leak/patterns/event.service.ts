@@ -6,17 +6,7 @@ import {
   isEventLeaking,
   triggerEvent as triggerEventUtil,
 } from '../../../utils/leak-event';
-
-export interface EventLeakStats {
-  activeListeners: number;
-  totalMemoryAllocated: number; // in MB (approximate)
-  isLeaking: boolean;
-}
-
-export interface EventLeakResponse {
-  message: string;
-  stats: EventLeakStats;
-}
+import { EventLeakResponse, EventLeakStats } from '../types';
 
 @Injectable()
 export class EventService {

@@ -4,6 +4,7 @@ import { GlobalVariableService } from './patterns/global-variable.service';
 import { CacheService } from './patterns/cache.service';
 import { ClosureService } from './patterns/closure.service';
 import { EventService } from './patterns/event.service';
+import { OverallStatusResponse } from './types';
 
 @Controller('memory-leak')
 export class MemoryLeakController {
@@ -107,7 +108,7 @@ export class MemoryLeakController {
 
   // Overview endpoint
   @Get('status')
-  getOverallStatus() {
+  getOverallStatus(): OverallStatusResponse {
     return {
       timestamp: new Date().toISOString(),
       patterns: {

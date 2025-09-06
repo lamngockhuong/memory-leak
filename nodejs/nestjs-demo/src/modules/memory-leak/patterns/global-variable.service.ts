@@ -4,17 +4,7 @@ import {
   stopGlobalVariableLeak as stopLeak,
   getGlobalVariableStats,
 } from '../../../utils/leak-global';
-
-export interface GlobalVariableLeakStats {
-  leakedArrays: number;
-  estimatedMemoryMB: number;
-  isLeaking: boolean;
-}
-
-export interface GlobalVariableLeakResponse {
-  message: string;
-  stats: GlobalVariableLeakStats;
-}
+import { GlobalVariableLeakResponse } from '../types';
 
 @Injectable()
 export class GlobalVariableService {

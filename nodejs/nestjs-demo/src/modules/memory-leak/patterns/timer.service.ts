@@ -4,10 +4,11 @@ import {
   stopAllTimers as stopLeaks,
   getActiveTimersCount as getCount,
 } from '../../../utils/leak-timer';
+import { TimerLeakResponse, TimerStopResponse } from '../types';
 
 @Injectable()
 export class TimerService {
-  startTimerLeak(): { message: string; activeTimers: number } {
+  startTimerLeak(): TimerLeakResponse {
     startLeak(); // Use the original leak-timer function
     const activeTimers = getCount();
 
@@ -17,11 +18,7 @@ export class TimerService {
     };
   }
 
-  stopAllTimers(): {
-    message: string;
-    stoppedTimers: number;
-    activeTimers: number;
-  } {
+  stopAllTimers(): TimerStopResponse {
     const prevCount = getCount();
     stopLeaks(); // Use the original stop function
     const activeTimers = getCount();
@@ -33,10 +30,7 @@ export class TimerService {
     };
   }
 
-  getActiveTimersCount(): {
-    activeTimers: number;
-    message: string;
-  } {
+  getActiveTimersCount(): TimerLeakResponse {
     const activeTimers = getCount();
     return {
       activeTimers,
