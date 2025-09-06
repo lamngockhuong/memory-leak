@@ -25,6 +25,7 @@
   - [Development](#development)
   - [Testing Memory Leaks](#testing-memory-leaks)
     - [Using Bruno API Client](#using-bruno-api-client)
+    - [Jest E2E Tests](#jest-e2e-tests)
     - [Manual Testing](#manual-testing)
     - [Memory Monitoring](#memory-monitoring)
       - [Generate Heap Dumps](#generate-heap-dumps)
@@ -33,6 +34,7 @@
   - [Educational Use](#educational-use)
     - [Memory Leak Analysis Tools](#memory-leak-analysis-tools)
     - [USR2 Signal Configuration](#usr2-signal-configuration)
+    - [Authentication \& Security](#authentication--security)
   - [Run tests](#run-tests)
   - [Deployment](#deployment)
     - [Environment Variables](#environment-variables)
@@ -110,10 +112,10 @@ Where `{pattern}` can be:
 ### Additional Endpoints
 
 ```
-GET  /memory-leak/cache/stats     - Cache statistics
-POST /memory-leak/event/trigger   - Trigger event listeners
-POST /debug/heapdump              - Generate heap dump
-GET  /health/ready                - Health check
+GET  /memory-leak/cache/stats        - Cache statistics
+POST /memory-leak/event/trigger      - Trigger event listeners
+POST /internal/debug/heapdump        - Generate heap dump (requires admin token)
+GET  /health/ready                   - Health check
 ```
 
 ## Project setup
@@ -152,6 +154,29 @@ cd test/bruno/
 bru run memory-leak -r --env local
 ```
 
+### Jest E2E Tests
+
+The project also includes comprehensive Jest-based E2E tests:
+
+```bash
+# Run Jest E2E tests
+pnpm run test:e2e
+
+# Run specific test files
+pnpm run test:e2e -- --testPathPattern=app.e2e-spec.ts
+
+# Run tests with verbose output
+pnpm run test:e2e -- --verbose
+```
+
+**E2E Test Coverage:**
+
+- ✅ All memory leak patterns (start/stop/status)
+- ✅ Debug endpoints with authentication
+- ✅ Health check endpoints
+- ✅ Error handling scenarios
+- ✅ Memory leak scenario simulations
+
 ### Manual Testing
 
 1. **Start the application**:
@@ -188,8 +213,8 @@ There are multiple ways to generate heap dumps for analysis:
 **Method 1: REST API Endpoint**
 
 ```bash
-# Create heap dump via API
-curl -X POST http://localhost:3000/internal/debug/heapdump
+# Create heap dump via API (requires admin token)
+curl -X POST -H "x-admin-token: heapdump_demo" http://localhost:3000/internal/debug/heapdump
 ```
 
 **Method 2: USR2 Signal (macOS/Linux)**
@@ -241,15 +266,21 @@ src/
 │   ├── leak-event.ts        # Event leak utilities
 │   └── leak-global.ts       # Global variable leak utilities
 └── modules/debug/           # Debugging and monitoring tools
-    ├── debug.controller.ts  # Heap dump endpoints
+    ├── debug.controller.ts  # Heap dump endpoints (protected by AdminTokenGuard)
+    ├── admin-token.guard.ts # Security guard for debug endpoints
+    ├── readiness.service.ts # Application readiness state management
     └── health.controller.ts # Health check endpoints
 
-test/bruno/memory-leak/      # API test suite
-├── cache/                   # Cache pattern tests
-├── closure/                 # Closure pattern tests
-├── event/                   # Event pattern tests
-├── timer/                   # Timer pattern tests
-└── global-variable/         # Global variable tests
+test/                        # Test suites
+├── app.e2e-spec.ts         # Jest E2E tests (comprehensive API testing)
+├── jest-e2e.json          # Jest E2E configuration
+├── jest-setup.ts          # Test environment setup
+└── bruno/memory-leak/      # Bruno API test suite
+    ├── cache/                   # Cache pattern tests
+    ├── closure/                 # Closure pattern tests
+    ├── event/                   # Event pattern tests
+    ├── timer/                   # Timer pattern tests
+    └── global-variable/         # Global variable tests
 ```
 
 ## Educational Use
@@ -287,17 +318,40 @@ process.on('SIGUSR2', async () => {
 - **Non-intrusive**: Doesn't require API endpoints
 - **Standard practice**: Common Node.js debugging technique
 
+### Authentication & Security
+
+The debug endpoints are protected by `AdminTokenGuard` which:
+
+- **Token-based authentication**: Requires `x-admin-token` header
+- **Timing-safe comparison**: Prevents timing attacks using crypto.timingSafeEqual
+- **Environment-based**: Token configured via `HEAPDUMP_TOKEN` environment variable
+- **IP allowlist ready**: Infrastructure for IP-based restrictions
+
+**Authentication Example:**
+
+```bash
+# Without token (returns 403)
+curl -X POST http://localhost:3000/internal/debug/heapdump
+
+# With valid token (returns 202)
+curl -X POST -H "x-admin-token: heapdump_demo" http://localhost:3000/internal/debug/heapdump
+```
+
 ## Run tests
 
 ```bash
 # unit tests
 pnpm run test
 
-# e2e tests
+# e2e tests (Jest-based)
 pnpm run test:e2e
 
 # test coverage
 pnpm run test:cov
+
+# API tests with Bruno (if installed)
+cd test/bruno/
+bru run memory-leak -r --env local
 ```
 
 ## Deployment
@@ -322,6 +376,7 @@ HEAPDUMP_TOKEN=heapdump_demo
 
 - **Remove debug endpoints** in production
 - **Disable heap dump generation** (contains sensitive data)
+- **Secure admin token** for debug endpoints (change HEAPDUMP_TOKEN)
 - **Add authentication** for memory leak endpoints
 - **Monitor resource usage** to prevent DoS attacks
 
