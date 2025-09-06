@@ -1,0 +1,18 @@
+meta {
+  name: timer-leak-status
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/memory-leak/timer/status
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.message: isDefined
+  res.body.activeTimers: isNumber
+}
+

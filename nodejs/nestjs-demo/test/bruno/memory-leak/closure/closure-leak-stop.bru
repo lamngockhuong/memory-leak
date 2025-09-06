@@ -1,0 +1,20 @@
+meta {
+  name: closure-leak-stop
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/memory-leak/closure/stop
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 201
+  res.body.message: isDefined
+  res.body.stats: isDefined
+  res.body.stats.activeClosures: eq 0
+  res.body.stats.totalMemoryAllocated: eq 0
+  res.body.stats.isLeaking: isFalsy
+}

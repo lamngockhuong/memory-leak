@@ -669,11 +669,11 @@ async function loadTest() {
 }
 ```
 
-<!-- ## Related Resources
+## Related Resources
 
-- [Global Variables Pattern](/patterns/global-variables) - Detailed analysis of global variable leaks
-- [Event Listeners Pattern](/patterns/event-listeners) - Event listener memory management
-- [Closures Pattern](/patterns/closures) - Understanding closure-based leaks
-- [NestJS Demo](/demos/nestjs) - Hands-on Node.js memory leak examples
-- [Browser DevTools Guide](/tools/browser-devtools) - Using Chrome DevTools for analysis
-- [Node.js Profiling Guide](/tools/nodejs-profiling) - Node.js specific profiling tools -->
+- [Global Variables Pattern](../patterns/global-variables.md) - Detailed analysis of global variable leaks
+- [Event Listeners Pattern](../patterns/event-listeners.md) - Event listener memory management
+- [Closures Pattern](../patterns/closures.md) - Understanding closure-based leaks
+- [NestJS Demo](../demos/nestjs.md) - Hands-on Node.js memory leak examples
+- [Browser DevTools Guide](../tools/browser-devtools.md) - Using Chrome DevTools for analysis
+- [Node.js Profiling Guide](../tools/nodejs-profiling.md) - Node.js specific profiling tools

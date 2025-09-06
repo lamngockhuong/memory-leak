@@ -1,0 +1,18 @@
+meta {
+  name: timer-leak-stop
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/memory-leak/timer/stop
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 201
+  res.body.message: isDefined
+  res.body.stoppedTimers: isNumber
+  res.body.activeTimers: eq 0
+}

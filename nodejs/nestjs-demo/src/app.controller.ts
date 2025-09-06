@@ -9,9 +9,4 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
-
-  @Get('global-variable-leak')
-  globalVariableLeak() {
-    return this.appService.globalVariableLeak();
-  }
 }

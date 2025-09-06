@@ -669,11 +669,11 @@ async function loadTest() {
 }
 ```
 
-<!-- ## Tài nguyên liên quan
+## Tài nguyên liên quan
 
-- [Mẫu biến toàn cục](/patterns/global-variables) - Phân tích chi tiết về rò rỉ do biến toàn cục
-- [Mẫu trình lắng nghe sự kiện](/patterns/event-listeners) - Quản lý bộ nhớ cho event listener
-- [Mẫu closure](/patterns/closures) - Hiểu về rò rỉ bộ nhớ do closure
-- [Demo NestJS](/demos/nestjs) - Ví dụ thực tế về rò rỉ bộ nhớ Node.js
-- [Hướng dẫn DevTools trình duyệt](/tools/browser-devtools) - Sử dụng Chrome DevTools để phân tích
-- [Hướng dẫn profiling Node.js](/tools/nodejs-profiling) - Công cụ profiling chuyên biệt cho Node.js -->
+- [Mẫu biến toàn cục](../patterns/global-variables.md) - Phân tích chi tiết về rò rỉ do biến toàn cục
+- [Mẫu trình lắng nghe sự kiện](../patterns/event-listeners.md) - Quản lý bộ nhớ cho event listener
+- [Mẫu closure](../patterns/closures.md) - Hiểu về rò rỉ bộ nhớ do closure
+- [Demo NestJS](../demos/nestjs.md) - Ví dụ thực tế về rò rỉ bộ nhớ Node.js
+- [Hướng dẫn DevTools trình duyệt](../tools/browser-devtools.md) - Sử dụng Chrome DevTools để phân tích
+- [Hướng dẫn profiling Node.js](../tools/nodejs-profiling.md) - Công cụ profiling chuyên biệt cho Node.js

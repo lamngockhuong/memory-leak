@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DebugModule } from './modules/debug/debug.module';
+import { MemoryLeakModule } from './modules/memory-leak/memory-leak.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { DebugModule } from './modules/debug/debug.module';
       envFilePath: '.env',
     }),
     DebugModule,
+    MemoryLeakModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,0 +1,19 @@
+meta {
+  name: global-variable-leak-stop
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/memory-leak/global-variable/stop
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 201
+  res.body.stats: isDefined
+  res.body.stats.leakedArrays: eq 0
+  res.body.stats.estimatedMemoryMB: eq 0
+  res.body.stats.isLeaking: isFalsy
+}

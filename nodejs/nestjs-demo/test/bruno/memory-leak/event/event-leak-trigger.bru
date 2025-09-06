@@ -1,0 +1,17 @@
+meta {
+  name: event-leak-trigger
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/memory-leak/event/trigger
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 201
+  res.body.message: isDefined
+  res.body.listenersNotified: isNumber
+}
