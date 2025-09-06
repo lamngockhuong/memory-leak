@@ -46,7 +46,7 @@ curl -X POST http://localhost:3000/memory-leak/global-variable/start
 curl http://localhost:3000/memory-leak/status
 
 # Tạo heap dump để phân tích
-curl -X POST http://localhost:3000/debug/heapdump
+curl -X POST http://localhost:3000/internal/debug/heapdump
 ```
 
 ### Hỗ trợ Docker
