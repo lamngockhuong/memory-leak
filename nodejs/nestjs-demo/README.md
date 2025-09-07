@@ -438,9 +438,10 @@ For the complete Dockerfile, see [`Dockerfile`](./Dockerfile) in the project roo
 
 For detailed documentation about memory leak patterns and detection:
 
-- **Project Docs**: `../../docs/` - Comprehensive memory leak guide
-- **NestJS Docs**: [https://docs.nestjs.com](https://docs.nestjs.com)
-- **Memory Management**: [Node.js Memory Best Practices](https://nodejs.org/en/docs/guides/debugging-getting-started)
+- **📚 Comprehensive Analysis Guide**: [`../../docs/demos/nestjs.md`](../../docs/demos/nestjs.md) - V8 heap dump analysis and educational content
+- **📋 Project Docs**: `../../docs/` - Comprehensive memory leak guide
+- **🔧 NestJS Docs**: [https://docs.nestjs.com](https://docs.nestjs.com)
+- **💡 Memory Management**: [Node.js Memory Best Practices](https://nodejs.org/en/docs/guides/debugging-getting-started)
 
 ## Resources
 

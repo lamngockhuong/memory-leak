@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@miletorix/vitepress-image-viewer':
+        specifier: ^1.1.3
+        version: 1.1.3(vue@3.5.19)
       vitepress-mermaid-renderer:
         specifier: ^1.0.14
         version: 1.0.14(mermaid@11.10.1)(vue@3.5.19)
@@ -235,6 +238,11 @@ packages:
 
   '@mermaid-js/parser@0.6.2':
     resolution: {integrity: sha512-+PO02uGF6L6Cs0Bw8RpGhikVvMWEysfAyl27qTlroUB8jSWr1lL0Sf6zi78ZxlSnmgSY2AMMKVgghnN9jTtwkQ==}
+
+  '@miletorix/vitepress-image-viewer@1.1.3':
+    resolution: {integrity: sha512-ksRhLJnoby4LU7PQ0X6aVgFGueYc5tYyvM9h3UsXcdaxa4m199At+osJIk0rN5NglfS/bighZe91ffSQ/MS6CQ==}
+    peerDependencies:
+      vue: ^3.0.0
 
   '@rolldown/pluginutils@1.0.0-beta.29':
     resolution: {integrity: sha512-NIJgOsMjbxAXvoGq/X0gD7VPMQ8j9g0BiDaNjVNVjvl+iKXxL3Jre0v31RmBYeLEmkbj2s02v8vFTbUXi5XS2Q==}
@@ -1352,6 +1360,10 @@ snapshots:
   '@mermaid-js/parser@0.6.2':
     dependencies:
       langium: 3.3.1
+
+  '@miletorix/vitepress-image-viewer@1.1.3(vue@3.5.19)':
+    dependencies:
+      vue: 3.5.19
 
   '@rolldown/pluginutils@1.0.0-beta.29': {}
 
