@@ -1,4 +1,5 @@
 import { defineConfig } from "vitepress";
+import { ViteImageOptimizer } from "vite-plugin-image-optimizer";
 
 export default defineConfig({
   title: "Memory Leak Guide",
@@ -6,9 +7,8 @@ export default defineConfig({
     "Comprehensive guide to understand, detect, and prevent memory leaks across multiple programming languages",
   lastUpdated: true,
   // ignoreDeadLinks: true,
-
-  // Build optimization to handle chunk size warnings
   vite: {
+    // Build optimization to handle chunk size warnings
     build: {
       chunkSizeWarningLimit: Infinity, // Disable chunk size warnings for docs
       rollupOptions: {
@@ -54,6 +54,7 @@ export default defineConfig({
         },
       },
     },
+    plugins: [ViteImageOptimizer({})],
   },
 
   head: [
