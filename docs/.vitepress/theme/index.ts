@@ -2,7 +2,9 @@ import { h, nextTick, onMounted } from "vue";
 import type { Theme } from "vitepress";
 import DefaultTheme from "vitepress/theme";
 import { createMermaidRenderer } from "vitepress-mermaid-renderer";
+import ImageViewerP from "@miletorix/vitepress-image-viewer";
 import "vitepress-mermaid-renderer/dist/style.css";
+import "@miletorix/vitepress-image-viewer/style.css";
 
 export default {
   extends: DefaultTheme,
@@ -43,5 +45,7 @@ export default {
         nextTick(() => mermaidRenderer.renderMermaidDiagrams());
       };
     }
+
+    ImageViewerP(app);
   },
 } satisfies Theme;

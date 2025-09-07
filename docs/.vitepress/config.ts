@@ -57,7 +57,42 @@ export default defineConfig({
   },
 
   head: [
+    // Favicon configurations
+    ["link", { rel: "shortcut icon", href: "/favicon.ico", sizes: "48x48" }],
     ["link", { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" }],
+    [
+      "link",
+      {
+        rel: "icon",
+        href: "/favicon-96x96.png",
+        type: "image/png",
+        sizes: "96x96",
+      },
+    ],
+    [
+      "link",
+      {
+        rel: "apple-touch-icon",
+        href: "/apple-touch-icon.png",
+        sizes: "180x180",
+      },
+    ],
+    ["link", { rel: "manifest", href: "/site.webmanifest" }],
+    [
+      "script",
+      {
+        async: "",
+        src: "https://www.googletagmanager.com/gtag/js?id=G-WRS368HBX2",
+      },
+    ],
+    [
+      "script",
+      {},
+      `window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-WRS368HBX2');`,
+    ],
   ],
   locales: {
     root: {
@@ -215,5 +250,8 @@ export default defineConfig({
       copyright:
         "Copyright © 2025-present <a href='https://khuong.dev' target='_blank'>Khuong Dev</a>",
     },
+  },
+  sitemap: {
+    hostname: "https://khuong.dev",
   },
 });
