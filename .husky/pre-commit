@@ -7,7 +7,7 @@ NC='\033[0m'
 echo "Branch name: ${GREEN}$BRANCH${NC}"
 
 if ! echo "$BRANCH" | grep -qE "$REGEX"; then
-  echo "${RED}Your commit was rejected due to branching name"
+  echo "${RED}Your commit was rejected due to branch naming"
   echo "Please rename your branch with '(feature|feat|chore|fix|bugfix|hotfix|docs|refactor|test|build|perf|style|ci|release|merge)(.<ticket>?).<subject-example>' syntax${NC}"
   exit 1
 fi
