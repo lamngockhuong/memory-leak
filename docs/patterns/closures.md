@@ -507,23 +507,23 @@ function attachOptimizedHandlers(elements, largeDataset) {
 ```javascript
 class CleanableClosures {
     constructor() {
-        this.activeCLosures = new Set();
+        this.activeClosures = new Set();
     }
 
     createClosure(factory, data) {
         const cleanup = new Set();
 
         const closure = factory(data, cleanup);
-        this.activeCLosures.add({ closure, cleanup });
+        this.activeClosures.add({ closure, cleanup });
 
         return closure;
     }
 
     cleanup() {
-        for (const { cleanup } of this.activeCLosures) {
+        for (const { cleanup } of this.activeClosures) {
             cleanup.forEach(cleanupFn => cleanupFn());
         }
-        this.activeCLosures.clear();
+        this.activeClosures.clear();
     }
 }
 

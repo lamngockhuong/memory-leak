@@ -786,7 +786,7 @@ curl -X POST http://localhost:3000/memory-leak/timer/stop
 
 **Hành vi mong đợi:**
 
-- **Memory Growth**: ~5MB được allocate mỗi giây mỗi active timer (buffers được GC)
+- **Memory Growth**: ~5MB được cấp phát mỗi giây mỗi active timer (buffers được GC)
 - **Heap Objects**: Số lượng Timeout object = số lần gọi API
 - **Leak thực sự**: Timer objects được giữ trong array, không phải temporary buffers
 - **Cleanup**: Số lượng timer về 0, memory ổn định sau khi stopping
@@ -889,7 +889,7 @@ setInterval(() => {
 
 #### Timer Leaks
 
-- **Tốc độ tăng trưởng**: ~5MB được allocate mỗi giây mỗi active timer (buffer tạm thời được GC)
+- **Tốc độ tăng trưởng**: ~5MB được cấp phát mỗi giây mỗi active timer (buffer tạm thời được GC)
 - **Pattern**: Tăng trưởng theo số lần gọi API, không phải thời gian chạy
 - **Cleanup**: Timer count về 0 ngay lập tức, memory ổn định khi stopped
 - **Heap Objects**: Timeout objects = số lần gọi API, buffer objects được GC định kỳ
