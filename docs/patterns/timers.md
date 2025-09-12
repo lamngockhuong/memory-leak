@@ -1,19 +1,51 @@
 # Timer Memory Leaks
 
-Timer-based memory leaks are among the most common and dangerous types of memory leaks in JavaScript/Node.js applications. They occur when timers (`setInterval`, `setTimeout`) are not properly cleared, causing continuous memory allocation and preventing garbage collection.
+Timer-based memory leaks are among the most common and dangerous types of memory leaks across programming languages. They occur when timers, periodic tasks, or scheduled operations are not properly managed, causing continuous memory allocation and preventing garbage collection.
 
 ## What are Timer Memory Leaks?
 
 Timer memory leaks happen when:
 
-1. **Intervals/timeouts are created** but never cleared
+1. **Timers/scheduled tasks are created** but never stopped or cleared
 2. **Timer callbacks reference large objects** that can't be garbage collected
 3. **Recursive timers** create infinite chains of timer calls
-4. **Anonymous timer functions** capture large closure contexts
+4. **Timer contexts capture large data** preventing memory cleanup
+
+## Language-Specific Timer Mechanisms
+
+### JavaScript/Node.js
+
+- `setInterval()`, `setTimeout()`
+- Web APIs: `requestAnimationFrame()`
+- Node.js: `setImmediate()`
+
+### Java
+
+- `java.util.Timer`, `TimerTask`
+- `ScheduledExecutorService`
+- Spring `@Scheduled` annotations
+
+### Python
+
+- `threading.Timer`
+- `asyncio` scheduled tasks
+- `APScheduler` (Advanced Python Scheduler)
+
+### Go
+
+- `time.Timer`, `time.Ticker`
+- Goroutines with `time.Sleep()`
+- `context.WithTimeout()`
+
+### C#/.NET
+
+- `System.Timers.Timer`
+- `System.Threading.Timer`
+- `Task.Delay()` with cancellation tokens
 
 ## How Timer Leaks Occur
 
-### Example: Uncleaned setInterval
+### JavaScript/Node.js Example
 
 ```javascript
 // BAD: Timer never cleared
@@ -27,10 +59,74 @@ function startDataProcessing() {
 startDataProcessing(); // Memory grows by 5MB every second forever
 ```
 
-### Example: Timer with Closure Context
+### Java Example
+
+```java
+// BAD: Timer not properly cancelled
+public class DataProcessor {
+    private Timer timer = new Timer();
+
+    public void startProcessing() {
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                byte[] largeData = new byte[5 * 1024 * 1024]; // 5MB
+                processData(largeData);
+                // largeData referenced by timer, can't be GC'd
+            }
+        }, 0, 1000);
+    }
+    // Missing: timer.cancel() in cleanup
+}
+```
+
+### Python Example
+
+```python
+# BAD: Timer not properly cancelled
+import threading
+import time
+
+def start_processing():
+    large_data = bytearray(5 * 1024 * 1024)  # 5MB
+
+    def process():
+        # large_data captured in closure, preventing GC
+        print(f"Processing {len(large_data)} bytes")
+        # Schedule next execution
+        timer = threading.Timer(1.0, process)
+        timer.start()  # Never cancelled!
+
+    process()
+```
+
+### Go Example
+
+```go
+// BAD: Ticker not properly stopped
+package main
+
+import (
+    "time"
+)
+
+func startProcessing() {
+    ticker := time.NewTicker(1 * time.Second)
+    largeData := make([]byte, 5*1024*1024) // 5MB
+
+    go func() {
+        for range ticker.C {
+            processData(largeData) // largeData never released
+        }
+    }()
+    // Missing: ticker.Stop()
+}
+```
+
+### Timer with Closure Context
 
 ```javascript
-// BAD: Timer captures large context
+// BAD: Timer captures large context (JavaScript example)
 function processLargeDataset(dataset) {
     const hugeArray = new Array(1000000).fill(dataset);
 
@@ -53,12 +149,35 @@ Timer leaks are particularly dangerous because:
 
 ### 1. Memory Monitoring
 
-```bash
-# Monitor Node.js memory usage
-node --inspect your-app.js
+**Node.js:**
 
-# Check memory growth over time
+```bash
+node --inspect your-app.js
 process.memoryUsage()
+```
+
+**Java:**
+
+```bash
+jstat -gc <pid>
+jmap -histo <pid>
+```
+
+**Python:**
+
+```python
+import psutil
+process = psutil.Process()
+print(process.memory_info())
+```
+
+**Go:**
+
+```go
+import "runtime"
+var m runtime.MemStats
+runtime.GC()
+runtime.ReadMemStats(&m)
 ```
 
 ### 2. Performance Timeline
@@ -87,6 +206,8 @@ ps aux | grep node
 
 ### 1. Always Clear Timers
 
+**JavaScript:**
+
 ```javascript
 // GOOD: Proper timer management
 class TimerManager {
@@ -108,6 +229,82 @@ class TimerManager {
     clearAllTimers() {
         this.timers.forEach(timerId => clearInterval(timerId));
         this.timers.clear();
+    }
+}
+```
+
+**Java:**
+
+```java
+// GOOD: Proper timer cleanup
+public class TimerManager {
+    private final Set<Timer> timers = new HashSet<>();
+
+    public Timer createTimer() {
+        Timer timer = new Timer();
+        timers.add(timer);
+        return timer;
+    }
+
+    public void cleanup() {
+        timers.forEach(Timer::cancel);
+        timers.clear();
+    }
+}
+```
+
+**Python:**
+
+```python
+# GOOD: Timer cancellation
+import threading
+
+class TimerManager:
+    def __init__(self):
+        self.timers = []
+
+    def create_timer(self, callback, interval):
+        timer = threading.Timer(interval, callback)
+        self.timers.append(timer)
+        timer.start()
+        return timer
+
+    def cleanup(self):
+        for timer in self.timers:
+            timer.cancel()
+        self.timers.clear()
+```
+
+**Go:**
+
+```go
+// GOOD: Proper ticker cleanup
+type TimerManager struct {
+    tickers []*time.Ticker
+    done    chan bool
+}
+
+func (tm *TimerManager) CreateTicker(interval time.Duration, callback func()) {
+    ticker := time.NewTicker(interval)
+    tm.tickers = append(tm.tickers, ticker)
+
+    go func() {
+        defer ticker.Stop()
+        for {
+            select {
+            case <-ticker.C:
+                callback()
+            case <-tm.done:
+                return
+            }
+        }
+    }()
+}
+
+func (tm *TimerManager) Cleanup() {
+    close(tm.done)
+    for _, ticker := range tm.tickers {
+        ticker.Stop()
     }
 }
 ```
@@ -158,14 +355,16 @@ function createLimitedTimer(callback, interval, maxRuns = 100) {
 Use our demo API to simulate timer leaks:
 
 ```bash
-# Start timer leak (5MB/second)
-curl http://localhost:3000/timer-leak
+# Start timer leak (each call creates 1 new timer)
+curl -X POST http://localhost:3000/memory-leak/timer/start
+curl -X POST http://localhost:3000/memory-leak/timer/start
+curl -X POST http://localhost:3000/memory-leak/timer/start
 
-# Check active timers
-curl http://localhost:3000/timer-leak/status
+# Check active timers count
+curl http://localhost:3000/memory-leak/timer/status
 
 # Stop all timer leaks
-curl http://localhost:3000/timer-leak/stop
+curl -X POST http://localhost:3000/memory-leak/timer/stop
 ```
 
 ### Automated Testing
@@ -197,12 +396,15 @@ describe('Timer Leak Prevention', () => {
 
 ### 1. Timer Lifecycle Management
 
-- **Always pair** `setInterval` with `clearInterval`
-- **Track timer IDs** in arrays or sets
-- **Clear timers** in cleanup functions
+- **Always pair creation with cleanup** (timer start with timer stop)
+- **Track timer references** in collections or management objects
+- **Clear timers** in cleanup/destructor functions
 - **Use try/finally** blocks for guaranteed cleanup
+- **Implement timeouts** for long-running timers
 
-### 2. Avoid Large Closures
+### 2. Avoid Large Context Capture
+
+**JavaScript:**
 
 ```javascript
 // BAD: Large closure context
@@ -221,13 +423,38 @@ function createTimer(largeData) {
 }
 ```
 
-### 3. Use Modern Alternatives
+**Java:**
+
+```java
+// BAD: Anonymous class captures large context
+public void createTimer(List<byte[]> largeDataList) {
+    timer.scheduleAtFixedRate(new TimerTask() {
+        @Override
+        public void run() {
+            System.out.println(largeDataList.size()); // Captures entire list
+        }
+    }, 0, 1000);
+}
+
+// GOOD: Extract needed values
+public void createTimer(List<byte[]> largeDataList) {
+    final int size = largeDataList.size(); // Extract only what's needed
+    timer.scheduleAtFixedRate(new TimerTask() {
+        @Override
+        public void run() {
+            System.out.println(size);
+        }
+    }, 0, 1000);
+}
+```
+
+### 3. Use Modern Cancellation Patterns
+
+**JavaScript - AbortController:**
 
 ```javascript
-// Modern: AbortController for cancellation
 function createCancellableTimer(callback, interval) {
     const controller = new AbortController();
-
     const timer = setInterval(callback, interval);
 
     controller.signal.addEventListener('abort', () => {
@@ -236,10 +463,41 @@ function createCancellableTimer(callback, interval) {
 
     return controller;
 }
+```
 
-// Usage
-const controller = createCancellableTimer(() => {}, 1000);
-// Later: controller.abort();
+**Java - CompletableFuture:**
+
+```java
+public CompletableFuture<Void> createCancellableTimer(Runnable callback, long interval) {
+    return CompletableFuture.runAsync(() -> {
+        try {
+            while (!Thread.currentThread().isInterrupted()) {
+                Thread.sleep(interval);
+                callback.run();
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    });
+}
+```
+
+**Go - Context:**
+
+```go
+func createCancellableTimer(ctx context.Context, callback func(), interval time.Duration) {
+    ticker := time.NewTicker(interval)
+    defer ticker.Stop()
+
+    for {
+        select {
+        case <-ticker.C:
+            callback()
+        case <-ctx.Done():
+            return
+        }
+    }
+}
 ```
 
 ## Related Topics

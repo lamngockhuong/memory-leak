@@ -123,9 +123,8 @@ pnpm run start:debug
 
 Before triggering any memory leaks:
 
-1. Click "Take heap snapshot"
-2. Label it as "Baseline"
-3. Note the heap size (typically 15-25MB for clean startup)
+1. Choose "Heap snapshot" and Click "Take snapshot"
+2. Note the heap size (typically 15-25MB for clean startup)
 
 ### Pattern-Specific Analysis
 
@@ -134,18 +133,22 @@ Before triggering any memory leaks:
 **Step 1: Trigger Timer Leak**
 
 ```bash
-# Start timer leak
+# Start timer leak (call multiple times to create multiple timers)
 curl -X POST http://localhost:3000/memory-leak/timer/start
+curl -X POST http://localhost:3000/memory-leak/timer/start
+curl -X POST http://localhost:3000/memory-leak/timer/start
+...
 
-# Check status
+# Check status to see active timer count
 curl http://localhost:3000/memory-leak/timer/status
 ```
 
-**Step 2: Take Snapshot After 2 Minutes**
+**Step 2: Create Multiple Timers**
 
-1. Wait 2 minutes for timers to accumulate
-2. Take another heap snapshot
-3. Label it "Timer Leak - 2min"
+1. Call the `/timer/start` endpoint multiple times (e.g., 10-20 times)
+2. Each call creates a new timer that runs every second
+3. Take heap snapshot after creating several timers
+4. Label it "Timer Leak - Multiple Timers"
 
 **Step 3: Analyze in Chrome DevTools**
 
@@ -159,40 +162,43 @@ curl http://localhost:3000/memory-leak/timer/status
 
 ```javascript
 // Objects you'll see in heap dump:
-- Timeout objects (increasing count)
-- Timer callback functions
-- Large ArrayBuffer objects (8MB each)
-- Retained closures with timer data
+- Timeout objects (count = number of API calls made)
+- Timer callback functions (1 per timer)
+- Buffer objects (temporary, created every second, then GC'd)
+- timers array holding timer references (the actual leak source)
 ```
 
 **Analysis Steps:**
 
 1. **Object Count Comparison**:
    - Baseline: ~0 Timeout objects
-   - After leak: ~120 Timeout objects (1 per second × 120 seconds)
+   - After 10 API calls: ~10 Timeout objects (1 per API call)
+   - After 20 API calls: ~20 Timeout objects
 
-2. **Memory Allocation**:
-   - Look for repeating allocation patterns
-   - Each timer allocates ~8MB of data
-   - Total growth: ~120 × 8MB = ~960MB
+2. **Memory Allocation Pattern**:
+   - Each API call creates 1 new timer object
+   - Each timer allocates 5MB buffer every second (but buffer gets GC'd)
+   - Timer objects themselves accumulate in memory
+   - Real leak: Timer objects in `timers` array, not the buffers
 
 3. **Retention Path Analysis**:
    - Click on Timeout objects
-   - Follow retention path to see what's keeping them alive
-   - Should show timer callback → closure → large data
+   - Follow retention path: `timers` array → Timeout objects → timer callbacks
+   - Each timer runs every 1 second, creating temporary 5MB buffers
 
 **Example Analysis Results:**
 
 ```
-Heap Size Growth:
-├── Baseline: 18MB
-├── After 2min: 978MB
-└── Growth: 960MB (120 timers × 8MB each)
+API Calls vs Memory Growth:
+├── 10 API calls: 10 timer objects, ~50MB memory (10 × 5MB buffers in flight)
+├── 20 API calls: 20 timer objects, ~100MB memory (20 × 5MB buffers in flight)
+└── Pattern: Linear growth with number of API calls, not time
 
 Object Analysis:
-├── Timeout objects: 120 instances
-├── ArrayBuffer: 120 instances (8MB each)
-└── Function closures: 120 instances
+├── Timeout objects: Equal to number of API calls
+├── Buffer allocations: Temporary (get garbage collected)
+├── Real leak: Timer object references in array
+└── Memory pattern: Spikes every second (buffer alloc/GC cycle)
 ```
 
 #### Cache Leaks Analysis
@@ -756,25 +762,34 @@ dump started
 ```bash
 # 1. Take baseline heap snapshot in Chrome DevTools
 
-# 2. Start timer leak
+# 2. Start multiple timer leaks (each call creates 1 new timer)
+curl -X POST http://localhost:3000/memory-leak/timer/start
+curl -X POST http://localhost:3000/memory-leak/timer/start
+curl -X POST http://localhost:3000/memory-leak/timer/start
+curl -X POST http://localhost:3000/memory-leak/timer/start
 curl -X POST http://localhost:3000/memory-leak/timer/start
 
-# 3. Check status periodically
+# 3. Check status to see active timer count
 curl http://localhost:3000/memory-leak/timer/status
 
-# 4. Wait 2 minutes, then take another heap snapshot
+# 4. Take heap snapshot after creating timers
 
-# 5. Stop the leak
+# 5. Optionally create more timers and compare snapshots
+curl -X POST http://localhost:3000/memory-leak/timer/start
+curl -X POST http://localhost:3000/memory-leak/timer/start
+
+# 6. Stop the leak
 curl -X POST http://localhost:3000/memory-leak/timer/stop
 
-# 6. Take final heap snapshot to verify cleanup
+# 7. Take final heap snapshot to verify cleanup
 ```
 
 **Expected Behavior:**
 
-- **Memory Growth**: ~8MB per second per active timer
-- **Heap Objects**: Increasing Timeout object count
-- **Cleanup**: Memory should stabilize after stopping
+- **Memory Growth**: ~5MB allocated per second per active timer (buffers get GC'd)
+- **Heap Objects**: Timeout object count = number of API calls made
+- **Real Leak**: Timer objects held in array, not the temporary buffers
+- **Cleanup**: Timer count returns to 0, memory stabilizes after stopping
 
 ### Testing Multiple Patterns Simultaneously
 
