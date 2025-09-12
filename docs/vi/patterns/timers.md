@@ -1,19 +1,51 @@
 # Timer Memory Leaks - Rò rỉ bộ nhớ từ Timer
 
-Timer memory leaks là một trong những loại rò rỉ bộ nhớ phổ biến và nguy hiểm nhất trong các ứng dụng JavaScript/Node.js. Chúng xảy ra khi các timer (`setInterval`, `setTimeout`) không được dọn dẹp đúng cách, gây ra việc cấp phát bộ nhớ liên tục và ngăn cản garbage collection.
+Timer memory leaks là một trong những loại rò rỉ bộ nhớ phổ biến và nguy hiểm nhất trong các ngôn ngữ lập trình. Chúng xảy ra khi các timer, tác vụ định kỳ, hoặc các hoạt động được lên lịch không được quản lý đúng cách, gây ra việc cấp phát bộ nhớ liên tục và ngăn cản garbage collection.
 
 ## Timer Memory Leaks là gì?
 
 Timer memory leaks xảy ra khi:
 
-1. **Intervals/timeouts được tạo** nhưng không bao giờ được xóa
+1. **Timers/tác vụ được lên lịch được tạo** nhưng không bao giờ được dừng hoặc xóa
 2. **Timer callbacks tham chiếu đến các object lớn** không thể được garbage collected
 3. **Recursive timers** tạo ra chuỗi vô hạn các timer calls
-4. **Anonymous timer functions** capture large closure contexts
+4. **Timer contexts capture large data** ngăn cản memory cleanup
+
+## Cơ chế Timer theo ngôn ngữ
+
+### JavaScript/Node.js
+
+- `setInterval()`, `setTimeout()`
+- Web APIs: `requestAnimationFrame()`
+- Node.js: `setImmediate()`
+
+### Java
+
+- `java.util.Timer`, `TimerTask`
+- `ScheduledExecutorService`
+- Spring `@Scheduled` annotations
+
+### Python
+
+- `threading.Timer`
+- `asyncio` scheduled tasks
+- `APScheduler` (Advanced Python Scheduler)
+
+### Go
+
+- `time.Timer`, `time.Ticker`
+- Goroutines với `time.Sleep()`
+- `context.WithTimeout()`
+
+### C#/.NET
+
+- `System.Timers.Timer`
+- `System.Threading.Timer`
+- `Task.Delay()` với cancellation tokens
 
 ## Cách Timer Leaks xảy ra
 
-### Ví dụ: setInterval không được dọn dẹp
+### Ví dụ JavaScript/Node.js
 
 ```javascript
 // SAI: Timer không bao giờ được cleared
@@ -27,10 +59,74 @@ function startDataProcessing() {
 startDataProcessing(); // Bộ nhớ tăng 5MB mỗi giây mãi mãi
 ```
 
-### Ví dụ: Timer với Closure Context
+### Ví dụ Java
+
+```java
+// SAI: Timer không được cancel đúng cách
+public class DataProcessor {
+    private Timer timer = new Timer();
+
+    public void startProcessing() {
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                byte[] largeData = new byte[5 * 1024 * 1024]; // 5MB
+                processData(largeData);
+                // largeData được tham chiếu bởi timer, không thể GC
+            }
+        }, 0, 1000);
+    }
+    // Thiếu: timer.cancel() trong cleanup
+}
+```
+
+### Ví dụ Python
+
+```python
+# SAI: Timer không được cancel đúng cách
+import threading
+import time
+
+def start_processing():
+    large_data = bytearray(5 * 1024 * 1024)  # 5MB
+
+    def process():
+        # large_data bị capture trong closure, ngăn cản GC
+        print(f"Processing {len(large_data)} bytes")
+        # Lên lịch execution tiếp theo
+        timer = threading.Timer(1.0, process)
+        timer.start()  # Không bao giờ được cancelled!
+
+    process()
+```
+
+### Ví dụ Go
+
+```go
+// SAI: Ticker không được stop đúng cách
+package main
+
+import (
+    "time"
+)
+
+func startProcessing() {
+    ticker := time.NewTicker(1 * time.Second)
+    largeData := make([]byte, 5*1024*1024) // 5MB
+
+    go func() {
+        for range ticker.C {
+            processData(largeData) // largeData không bao giờ được release
+        }
+    }()
+    // Thiếu: ticker.Stop()
+}
+```
+
+### Timer với Closure Context
 
 ```javascript
-// SAI: Timer capture large context
+// SAI: Timer capture large context (ví dụ JavaScript)
 function processLargeDataset(dataset) {
     const hugeArray = new Array(1000000).fill(dataset);
 
@@ -53,12 +149,35 @@ Timer leaks đặc biệt nguy hiểm vì:
 
 ### 1. Memory Monitoring
 
-```bash
-# Monitor Node.js memory usage
-node --inspect your-app.js
+**Node.js:**
 
-# Kiểm tra sự tăng trưởng bộ nhớ theo thời gian
+```bash
+node --inspect your-app.js
 process.memoryUsage()
+```
+
+**Java:**
+
+```bash
+jstat -gc <pid>
+jmap -histo <pid>
+```
+
+**Python:**
+
+```python
+import psutil
+process = psutil.Process()
+print(process.memory_info())
+```
+
+**Go:**
+
+```go
+import "runtime"
+var m runtime.MemStats
+runtime.GC()
+runtime.ReadMemStats(&m)
 ```
 
 ### 2. Performance Timeline
@@ -87,6 +206,8 @@ ps aux | grep node
 
 ### 1. Luôn luôn Clear Timers
 
+**JavaScript:**
+
 ```javascript
 // ĐÚNG: Quản lý timer đúng cách
 class TimerManager {
@@ -108,6 +229,82 @@ class TimerManager {
     clearAllTimers() {
         this.timers.forEach(timerId => clearInterval(timerId));
         this.timers.clear();
+    }
+}
+```
+
+**Java:**
+
+```java
+// ĐÚNG: Timer cleanup đúng cách
+public class TimerManager {
+    private final Set<Timer> timers = new HashSet<>();
+
+    public Timer createTimer() {
+        Timer timer = new Timer();
+        timers.add(timer);
+        return timer;
+    }
+
+    public void cleanup() {
+        timers.forEach(Timer::cancel);
+        timers.clear();
+    }
+}
+```
+
+**Python:**
+
+```python
+# ĐÚNG: Timer cancellation
+import threading
+
+class TimerManager:
+    def __init__(self):
+        self.timers = []
+
+    def create_timer(self, callback, interval):
+        timer = threading.Timer(interval, callback)
+        self.timers.append(timer)
+        timer.start()
+        return timer
+
+    def cleanup(self):
+        for timer in self.timers:
+            timer.cancel()
+        self.timers.clear()
+```
+
+**Go:**
+
+```go
+// ĐÚNG: Ticker cleanup đúng cách
+type TimerManager struct {
+    tickers []*time.Ticker
+    done    chan bool
+}
+
+func (tm *TimerManager) CreateTicker(interval time.Duration, callback func()) {
+    ticker := time.NewTicker(interval)
+    tm.tickers = append(tm.tickers, ticker)
+
+    go func() {
+        defer ticker.Stop()
+        for {
+            select {
+            case <-ticker.C:
+                callback()
+            case <-tm.done:
+                return
+            }
+        }
+    }()
+}
+
+func (tm *TimerManager) Cleanup() {
+    close(tm.done)
+    for _, ticker := range tm.tickers {
+        ticker.Stop()
     }
 }
 ```
@@ -158,14 +355,16 @@ function createLimitedTimer(callback, interval, maxRuns = 100) {
 Sử dụng demo API của chúng tôi để mô phỏng timer leaks:
 
 ```bash
-# Bắt đầu timer leak (5MB/giây)
-curl http://localhost:3000/timer-leak
+# Bắt đầu timer leak (mỗi lần gọi tạo 1 timer mới)
+curl -X POST http://localhost:3000/memory-leak/timer/start
+curl -X POST http://localhost:3000/memory-leak/timer/start
+curl -X POST http://localhost:3000/memory-leak/timer/start
 
-# Kiểm tra active timers
-curl http://localhost:3000/timer-leak/status
+# Kiểm tra số lượng active timers
+curl http://localhost:3000/memory-leak/timer/status
 
 # Dừng tất cả timer leaks
-curl http://localhost:3000/timer-leak/stop
+curl -X POST http://localhost:3000/memory-leak/timer/stop
 ```
 
 ### Automated Testing
@@ -197,12 +396,15 @@ describe('Timer Leak Prevention', () => {
 
 ### 1. Timer Lifecycle Management
 
-- **Luôn ghép đôi** `setInterval` với `clearInterval`
-- **Track timer IDs** trong arrays hoặc sets
-- **Clear timers** trong cleanup functions
+- **Luôn ghép đôi creation với cleanup** (timer start với timer stop)
+- **Track timer references** trong collections hoặc management objects
+- **Clear timers** trong cleanup/destructor functions
 - **Sử dụng try/finally** blocks để đảm bảo cleanup
+- **Implement timeouts** cho long-running timers
 
-### 2. Tránh Large Closures
+### 2. Tránh Large Context Capture
+
+**JavaScript:**
 
 ```javascript
 // SAI: Large closure context
@@ -221,13 +423,38 @@ function createTimer(largeData) {
 }
 ```
 
-### 3. Sử dụng Modern Alternatives
+**Java:**
+
+```java
+// SAI: Anonymous class captures large context
+public void createTimer(List<byte[]> largeDataList) {
+    timer.scheduleAtFixedRate(new TimerTask() {
+        @Override
+        public void run() {
+            System.out.println(largeDataList.size()); // Captures toàn bộ list
+        }
+    }, 0, 1000);
+}
+
+// ĐÚNG: Extract những gì cần thiết
+public void createTimer(List<byte[]> largeDataList) {
+    final int size = largeDataList.size(); // Chỉ extract những gì cần
+    timer.scheduleAtFixedRate(new TimerTask() {
+        @Override
+        public void run() {
+            System.out.println(size);
+        }
+    }, 0, 1000);
+}
+```
+
+### 3. Sử dụng Modern Cancellation Patterns
+
+**JavaScript - AbortController:**
 
 ```javascript
-// Modern: AbortController cho cancellation
 function createCancellableTimer(callback, interval) {
     const controller = new AbortController();
-
     const timer = setInterval(callback, interval);
 
     controller.signal.addEventListener('abort', () => {
@@ -236,10 +463,41 @@ function createCancellableTimer(callback, interval) {
 
     return controller;
 }
+```
 
-// Sử dụng
-const controller = createCancellableTimer(() => {}, 1000);
-// Sau đó: controller.abort();
+**Java - CompletableFuture:**
+
+```java
+public CompletableFuture<Void> createCancellableTimer(Runnable callback, long interval) {
+    return CompletableFuture.runAsync(() -> {
+        try {
+            while (!Thread.currentThread().isInterrupted()) {
+                Thread.sleep(interval);
+                callback.run();
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    });
+}
+```
+
+**Go - Context:**
+
+```go
+func createCancellableTimer(ctx context.Context, callback func(), interval time.Duration) {
+    ticker := time.NewTicker(interval)
+    defer ticker.Stop()
+
+    for {
+        select {
+        case <-ticker.C:
+            callback()
+        case <-ctx.Done():
+            return
+        }
+    }
+}
 ```
 
 ## Chủ đề liên quan

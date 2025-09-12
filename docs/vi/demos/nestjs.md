@@ -123,9 +123,8 @@ pnpm run start:debug
 
 Trước khi kích hoạt bất kỳ memory leak nào:
 
-1. Click "Take heap snapshot"
-2. Đặt label là "Baseline"
-3. Lưu ý kích thước heap (thường là 15-25MB cho clean startup)
+1. Chọn "Heap snapshot" và Click "Take snapshot"
+2. Lưu ý kích thước heap (thường là 15-25MB cho clean startup)
 
 ### Phân tích theo từng Pattern
 
@@ -134,18 +133,22 @@ Trước khi kích hoạt bất kỳ memory leak nào:
 **Bước 1: Kích hoạt Timer Leak**
 
 ```bash
-# Bắt đầu timer leak
+# Bắt đầu timer leak (gọi nhiều lần để tạo nhiều timers)
 curl -X POST http://localhost:3000/memory-leak/timer/start
+curl -X POST http://localhost:3000/memory-leak/timer/start
+curl -X POST http://localhost:3000/memory-leak/timer/start
+...
 
-# Kiểm tra trạng thái
+# Kiểm tra trạng thái để xem số lượng active timers
 curl http://localhost:3000/memory-leak/timer/status
 ```
 
-**Bước 2: Tạo Snapshot sau 2 phút**
+**Bước 2: Tạo nhiều Timers**
 
-1. Đợi 2 phút để timer tích lũy
-2. Tạo một heap snapshot khác
-3. Đặt label "Timer Leak - 2min"
+1. Gọi endpoint `/timer/start` nhiều lần (ví dụ: 10-20 lần)
+2. Mỗi lần gọi tạo một timer mới chạy mỗi giây
+3. Tạo heap snapshot sau khi tạo nhiều timers
+4. Đặt label "Timer Leak - Multiple Timers"
 
 **Bước 3: Phân tích trong Chrome DevTools**
 
@@ -159,40 +162,43 @@ curl http://localhost:3000/memory-leak/timer/status
 
 ```javascript
 // Các object bạn sẽ thấy trong heap dump:
-- Timeout objects (số lượng tăng)
-- Timer callback functions
-- Large ArrayBuffer objects (8MB mỗi cái)
-- Retained closures với timer data
+- Timeout objects (số lượng = số lần gọi API)
+- Timer callback functions (1 per timer)
+- Buffer objects (tạm thời, tạo mỗi giây, sau đó GC)
+- timers array giữ timer references (nguồn leak thực sự)
 ```
 
 **Các bước phân tích:**
 
 1. **So sánh số lượng Object**:
    - Baseline: ~0 Timeout objects
-   - Sau leak: ~120 Timeout objects (1 per second × 120 seconds)
+   - Sau 10 lần gọi API: ~10 Timeout objects (1 per API call)
+   - Sau 20 lần gọi API: ~20 Timeout objects
 
-2. **Memory Allocation**:
-   - Tìm kiếm các pattern allocation lặp lại
-   - Mỗi timer allocate ~8MB data
-   - Tổng tăng trưởng: ~120 × 8MB = ~960MB
+2. **Pattern Memory Allocation**:
+   - Mỗi lần gọi API tạo 1 timer object mới
+   - Mỗi timer allocate 5MB buffer mỗi giây (nhưng buffer được GC)
+   - Timer objects tích lũy trong memory
+   - Leak thực sự: Timer objects trong array `timers`, không phải buffers
 
 3. **Phân tích Retention Path**:
    - Click vào Timeout objects
-   - Theo retention path để xem điều gì giữ chúng alive
-   - Nên hiển thị timer callback → closure → large data
+   - Theo retention path: array `timers` → Timeout objects → timer callbacks
+   - Mỗi timer chạy mỗi 1 giây, tạo buffer 5MB tạm thời
 
 **Ví dụ kết quả phân tích:**
 
 ```
-Tăng trưởng Heap Size:
-├── Baseline: 18MB
-├── Sau 2min: 978MB
-└── Tăng trưởng: 960MB (120 timers × 8MB mỗi cái)
+API Calls vs Memory Growth:
+├── 10 lần gọi API: 10 timer objects, ~50MB memory (10 × 5MB buffers đang chạy)
+├── 20 lần gọi API: 20 timer objects, ~100MB memory (20 × 5MB buffers đang chạy)
+└── Pattern: Tăng trưởng tuyến tính theo số lần gọi API, không phải thời gian
 
 Phân tích Object:
-├── Timeout objects: 120 instances
-├── ArrayBuffer: 120 instances (8MB mỗi cái)
-└── Function closures: 120 instances
+├── Timeout objects: Bằng số lần gọi API
+├── Buffer allocations: Tạm thời (được garbage collected)
+├── Leak thực sự: Timer object references trong array
+└── Memory pattern: Tăng đột biến mỗi giây (buffer alloc/GC cycle)
 ```
 
 #### Phân tích Cache Leaks
@@ -756,25 +762,34 @@ dump started
 ```bash
 # 1. Tạo baseline heap snapshot trong Chrome DevTools
 
-# 2. Bắt đầu timer leak
+# 2. Bắt đầu nhiều timer leaks (mỗi lần gọi tạo 1 timer mới)
+curl -X POST http://localhost:3000/memory-leak/timer/start
+curl -X POST http://localhost:3000/memory-leak/timer/start
+curl -X POST http://localhost:3000/memory-leak/timer/start
+curl -X POST http://localhost:3000/memory-leak/timer/start
 curl -X POST http://localhost:3000/memory-leak/timer/start
 
-# 3. Kiểm tra status định kỳ
+# 3. Kiểm tra status để xem số lượng active timers
 curl http://localhost:3000/memory-leak/timer/status
 
-# 4. Đợi 2 phút, sau đó tạo heap snapshot khác
+# 4. Tạo heap snapshot sau khi tạo timers
 
-# 5. Dừng leak
+# 5. Tùy chọn tạo thêm timers và so sánh snapshots
+curl -X POST http://localhost:3000/memory-leak/timer/start
+curl -X POST http://localhost:3000/memory-leak/timer/start
+
+# 6. Dừng leak
 curl -X POST http://localhost:3000/memory-leak/timer/stop
 
-# 6. Tạo final heap snapshot để xác minh cleanup
+# 7. Tạo final heap snapshot để xác minh cleanup
 ```
 
 **Hành vi mong đợi:**
 
-- **Memory Growth**: ~8MB mỗi giây mỗi active timer
-- **Heap Objects**: Số lượng Timeout object tăng
-- **Cleanup**: Memory nên ổn định sau khi stopping
+- **Memory Growth**: ~5MB được allocate mỗi giây mỗi active timer (buffers được GC)
+- **Heap Objects**: Số lượng Timeout object = số lần gọi API
+- **Leak thực sự**: Timer objects được giữ trong array, không phải temporary buffers
+- **Cleanup**: Số lượng timer về 0, memory ổn định sau khi stopping
 
 ### Testing nhiều Patterns đồng thời
 
@@ -874,10 +889,10 @@ setInterval(() => {
 
 #### Timer Leaks
 
-- **Tốc độ tăng trưởng**: ~8MB mỗi giây mỗi active timer
-- **Pattern**: Tăng tuyến tính khi timer đang chạy
-- **Cleanup**: Memory ổn định ngay lập tức khi stopped
-- **Heap Objects**: Timeout objects tích lũy, được released khi cleanup
+- **Tốc độ tăng trưởng**: ~5MB được allocate mỗi giây mỗi active timer (buffer tạm thời được GC)
+- **Pattern**: Tăng trưởng theo số lần gọi API, không phải thời gian chạy
+- **Cleanup**: Timer count về 0 ngay lập tức, memory ổn định khi stopped
+- **Heap Objects**: Timeout objects = số lần gọi API, buffer objects được GC định kỳ
 
 #### Cache Leaks
 
