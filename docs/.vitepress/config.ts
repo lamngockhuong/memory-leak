@@ -273,6 +273,6 @@ export default defineConfig({
     },
   },
   sitemap: {
-    hostname: "https://khuong.dev",
+    hostname: "https://memory-leak.khuong.dev",
   },
 });
